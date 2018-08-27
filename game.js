@@ -109,3 +109,33 @@ items.forEach(status);
 movePlayer(5, -5);
 items.forEach(status);
 */
+
+class Level {
+  constructor (grid = [], actors = []) {
+    this.grid = grid;
+    this.actors = actors;
+    //player — движущийся объект, тип которого — свойство type — равно player. Игорок передаётся с остальными движущимися объектами.
+    this.height = this.grid.length; // Высота уровня = количеству строк сетки
+    this.width = this.grid.reduce((rez, item) => {
+      // Ширина уровня равна количеству ячеек сетки
+      if (rez > item.length) {
+        return rez;
+      } else {
+        return item.length;
+      }
+    }, 0);
+    this.status = null; // состояние прохождения уровня
+    this.finishDelay = 1;
+  }
+
+  isFinished() { // Определяет, завершен ли уровень
+    return this.status !== null && this.finishDelay < 0;
+  }
+
+  actorAt(actor) { // Определяет, расположен ли какой-то другой движущийся объект в переданной позиции
+    if (!(actor instanceof Actor)) {
+      throw new Error(`В метод actorAt не передан движущийся объект типа Actor`);
+    }
+    return this.actors.find(actorEl => actorEl.isIntersect(actor));
+  }
+}
