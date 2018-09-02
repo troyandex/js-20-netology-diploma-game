@@ -79,7 +79,8 @@ class Actor {
   }
 }
 
-/* пример кода:
+/* 
+// пример кода:
 const items = new Map();
 const player = new Actor();
 items.set('Игрок', player);
@@ -109,11 +110,25 @@ items.forEach(status);
 movePlayer(5, -5);
 items.forEach(status);
 */
-
+// Результат работы примера:
+/*
+Игрок: left: 0, top: 0, right: 1, bottom: 1
+Первая монета: left: 10, top: 10, right: 11, bottom: 11
+Вторая монета: left: 15, top: 5, right: 16, bottom: 6
+Игрок: left: 10, top: 10, right: 11, bottom: 11
+Первая монета: left: 10, top: 10, right: 11, bottom: 11
+Игрок подобрал Первая монета
+Вторая монета: left: 15, top: 5, right: 16, bottom: 6
+Игрок: left: 15, top: 5, right: 16, bottom: 6
+Первая монета: left: 10, top: 10, right: 11, bottom: 11
+Вторая монета: left: 15, top: 5, right: 16, bottom: 6
+Игрок подобрал Вторая монета
+*/
 class Level {
   constructor (grid = [], actors = []) {
     this.grid = grid;
     this.actors = actors;
+    this.player = this.actors.find(actor => actor.type === 'player');
     //player — движущийся объект, тип которого — свойство type — равно player. Игорок передаётся с остальными движущимися объектами.
     this.height = this.grid.length; // Высота уровня = количеству строк сетки
     this.width = this.grid.reduce((rez, item) => {
@@ -125,7 +140,7 @@ class Level {
       }
     }, 0);
     this.status = null; // состояние прохождения уровня
-    this.finishDelay = 1;
+    this.finishDelay = 1; // таймаут после окончания игры, равен 1 после создания. Необходим, чтобы после выигрыша или проигрыша игра не завершалась мгновенно
   }
 
   isFinished() { // Определяет, завершен ли уровень
@@ -138,4 +153,112 @@ class Level {
     }
     return this.actors.find(actorEl => actorEl.isIntersect(actor));
   }
+  
+  obstacleAt(position, size) { 
+  //определяет, нет ли препятствия в указанном месте.
+    if (!(position instanceof Vector) ||
+      !(size instanceof Vector)) {
+      throw new Error(`В метод obstacleAt передан не вектор`);
+    }
+
+    const borderLeft = Math.floor(position.x);
+    const borderRight = Math.ceil(position.x + size.x);
+    const borderTop = Math.floor(position.y);
+    const borderBottom = Math.ceil(position.y + size.y);
+
+//Если описанная двумя векторами область выходит за пределы игрового поля, 
+//то метод вернет строку lava, если область выступает снизу. 
+//И вернет wall в остальных случаях. Будем считать, что игровое поле слева, 
+//сверху и справа огорожено стеной и снизу у него смертельная лава.
+
+    if (borderLeft < 0 || borderRight > this.width || borderTop < 0) {
+      return 'wall';
+    } 
+    if (borderBottom > this.height) {
+      return 'lava';
+    }
+    
+    for (let y = borderTop; y < borderBottom; y++) {
+      for (let x = borderLeft; x < borderRight; x++) {
+        const gridLevel = this.grid[y][x];
+        if (gridLevel) {
+          return gridLevel;
+        }
+      }
+    }
+  }
+  
+  removeActor(actor) { // удаляет переданный объект с игрового поля
+    const actorIndex = this.actors.indexOf(actor); //возвращает индекс объекта
+    if (actorIndex !== -1) {
+      this.actors.splice(actorIndex, 1); //удаляем один элемент с найденного индекса.
+    }
+  }
+
+  noMoreActors(type) { 
+  //Определяет, остались ли еще объекты переданного типа на игровом поле
+    return !this.actors.some(actor => actor.type === type)
+  }
+
+  //playerTouched - Меняет состояние игрового поля при касании игроком каких-либо объектов или препятствий.
+  playerTouched(touchedType, actor) {
+  //Тип препятствия или объекта, движущийся объект  
+    if (this.status !== null) {
+      return;
+    }
+    if (['lava', 'fireball'].some((el) => el === touchedType)) { 
+      //если коснулись lava или fireball
+      return this.status = 'lost'; // проиграли
+    } 
+    if (touchedType === 'coin' && actor.type === 'coin') { 
+      //если коснулись монеты
+      this.removeActor(actor); //удаляем ее
+      if (this.noMoreActors('coin')) { //если монет больше нет
+        return this.status = 'won' // выиграли
+      }
+    }
+  }
 }
+
+// Пример кода
+const grid = [
+  [undefined, undefined],
+  ['wall', 'wall']
+];
+
+function MyCoin(title) {
+  this.type = 'coin';
+  this.title = title;
+}
+MyCoin.prototype = Object.create(Actor);
+MyCoin.constructor = MyCoin;
+
+const goldCoin = new MyCoin('Золото');
+const bronzeCoin = new MyCoin('Бронза');
+const player = new Actor();
+const fireball = new Actor();
+
+const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
+
+level.playerTouched('coin', goldCoin);
+level.playerTouched('coin', bronzeCoin);
+
+if (level.noMoreActors('coin')) {
+  console.log('Все монеты собраны');
+  console.log(`Статус игры: ${level.status}`);
+}
+
+const obstacle = level.obstacleAt(new Vector(1, 1), player.size);
+if (obstacle) {
+  console.log(`На пути препятствие: ${obstacle}`);
+}
+
+const otherActor = level.actorAt(player);
+if (otherActor === fireball) {
+  console.log('Пользователь столкнулся с шаровой молнией');
+}
+// Результат выполнения:
+// Все монеты собраны
+// Статус игры: won
+// На пути препятствие: wall
+// Пользователь столкнулся с шаровой молнией
