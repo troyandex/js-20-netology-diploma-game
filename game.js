@@ -221,6 +221,7 @@ class Level {
 }
 
 // Пример кода
+/*
 const grid = [
   [undefined, undefined],
   ['wall', 'wall']
@@ -257,8 +258,88 @@ const otherActor = level.actorAt(player);
 if (otherActor === fireball) {
   console.log('Пользователь столкнулся с шаровой молнией');
 }
+*/
 // Результат выполнения:
 // Все монеты собраны
 // Статус игры: won
 // На пути препятствие: wall
 // Пользователь столкнулся с шаровой молнией
+
+class LevelParser {
+  constructor(dictionaryOfChars = {}) {
+    // dictionaryOfObjects - словарь движущихся объектов игрового поля
+    this.dictionaryOfChars = Object.assign({}, dictionaryOfChars); // копия
+  }
+
+  actorFromSymbol(char) {
+  // Возвращает конструктор объекта по его символу, используя словарь
+    return this.dictionaryOfChars[char];
+  }
+
+  obstacleFromSymbol(char) {
+  // принимает символ - возвращает строку, соответствующую символу препятствия
+    if (char === 'x') {
+      return 'wall';
+    }
+    if (char === '!') {
+      return 'lava';
+    } 
+  }
+
+  createGrid(plan) {
+    // Принимает массив строк и преобразует его в массив массивов с препятствиями и пкстотами
+    return plan.map(line => line.split(''))
+      .map(line => line
+        .map(line => this.obstacleFromSymbol(line))
+      );
+  }
+
+  createActors(plan) { 
+  //Аналогично createGrid принимает массив строк и преобразует его в массив только движущихся объектов
+    return plan.reduce((rez, itemY, y) => { // обьеденяем в результат
+      itemY.split('').forEach((itemX, x) => {
+        const constructor = this.actorFromSymbol(itemX); // достаем консутруктор
+        if (typeof constructor === 'function') {
+          const actor = new constructor(new Vector(x, y));
+          if (actor instanceof Actor) { // только движ обьекты
+            rez.push(actor);
+          }
+        }
+      });
+      return rez;
+    },[]);
+  }
+
+  parse(plan) {
+    return new Level(this.createGrid(plan), this.createActors(plan));
+  }
+}
+
+// Пример использования
+
+const plan = [
+  ' @ ',
+  'x!x'
+];
+
+const actorsDict = Object.create(null);
+actorsDict['@'] = Actor;
+
+const parser = new LevelParser(actorsDict);
+const level = parser.parse(plan);
+
+level.grid.forEach((line, y) => {
+  line.forEach((cell, x) => console.log(`(${x}:${y}) ${cell}`));
+});
+
+level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
+
+
+/* Результат выполнения кода:
+(0:0) undefined
+(1:0) undefined
+(2:0) undefined
+(0:1) wall
+(1:1) lava
+(2:1) wall
+(1:0) actor */
