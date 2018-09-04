@@ -1,6 +1,7 @@
 'use strict';
-// класс Vector, позволяет контролировать расположение объектов в двумерном пространстве и управлять их размером и перемещением.
+
 class Vector {
+  // позволяет контролировать расположение объектов в двумерном пространстве и управлять их размером и перемещением.
   constructor(x = 0, y = 0) { //координаты по оси X и по оси Y
     this.x = x;
     this.y = y;
@@ -21,18 +22,9 @@ class Vector {
     //Создает и возвращает новый объект типа Vector, с новыми координатами
   }
 }
-
-/* пример кода:
- const start = new Vector(30, 50);
-const moveTo = new Vector(5, 10);
-const finish = start.plus(moveTo.times(2));
-
-console.log(`Исходное расположение: ${start.x}:${start.y}`);
-console.log(`Текущее расположение: ${finish.x}:${finish.y}`);
-*/
-
-// класс Actor, позволяет контролировать все движущиеся объекты на игровом поле и контролировать их пересечение.
+ 
 class Actor {
+  // позволяет контролировать все движущиеся объекты на игровом поле и контролировать их пересечение.
   constructor(position = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
     if (!(position instanceof Vector) ||
       !(size instanceof Vector) ||
@@ -79,51 +71,6 @@ class Actor {
   }
 }
 
-/* 
-// пример кода:
-const items = new Map();
-const player = new Actor();
-items.set('Игрок', player);
-items.set('Первая монета', new Actor(new Vector(10, 10)));
-items.set('Вторая монета', new Actor(new Vector(15, 5)));
-
-function position(item) {
-  return ['left', 'top', 'right', 'bottom']
-    .map(side => `${side}: ${item[side]}`)
-    .join(', ');  
-}
-
-function movePlayer(x, y) {
-  player.pos = player.pos.plus(new Vector(x, y));
-}
-
-function status(item, title) {
-  console.log(`${title}: ${position(item)}`);
-  if (player.isIntersect(item)) {
-    console.log(`Игрок подобрал ${title}`);
-  }
-}
-
-items.forEach(status);
-movePlayer(10, 10);
-items.forEach(status);
-movePlayer(5, -5);
-items.forEach(status);
-*/
-// Результат работы примера:
-/*
-Игрок: left: 0, top: 0, right: 1, bottom: 1
-Первая монета: left: 10, top: 10, right: 11, bottom: 11
-Вторая монета: left: 15, top: 5, right: 16, bottom: 6
-Игрок: left: 10, top: 10, right: 11, bottom: 11
-Первая монета: left: 10, top: 10, right: 11, bottom: 11
-Игрок подобрал Первая монета
-Вторая монета: left: 15, top: 5, right: 16, bottom: 6
-Игрок: left: 15, top: 5, right: 16, bottom: 6
-Первая монета: left: 10, top: 10, right: 11, bottom: 11
-Вторая монета: left: 15, top: 5, right: 16, bottom: 6
-Игрок подобрал Вторая монета
-*/
 class Level {
   constructor (grid = [], actors = []) {
     this.grid = grid;
@@ -220,51 +167,6 @@ class Level {
   }
 }
 
-// Пример кода
-/*
-const grid = [
-  [undefined, undefined],
-  ['wall', 'wall']
-];
-
-function MyCoin(title) {
-  this.type = 'coin';
-  this.title = title;
-}
-MyCoin.prototype = Object.create(Actor);
-MyCoin.constructor = MyCoin;
-
-const goldCoin = new MyCoin('Золото');
-const bronzeCoin = new MyCoin('Бронза');
-const player = new Actor();
-const fireball = new Actor();
-
-const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
-
-level.playerTouched('coin', goldCoin);
-level.playerTouched('coin', bronzeCoin);
-
-if (level.noMoreActors('coin')) {
-  console.log('Все монеты собраны');
-  console.log(`Статус игры: ${level.status}`);
-}
-
-const obstacle = level.obstacleAt(new Vector(1, 1), player.size);
-if (obstacle) {
-  console.log(`На пути препятствие: ${obstacle}`);
-}
-
-const otherActor = level.actorAt(player);
-if (otherActor === fireball) {
-  console.log('Пользователь столкнулся с шаровой молнией');
-}
-*/
-// Результат выполнения:
-// Все монеты собраны
-// Статус игры: won
-// На пути препятствие: wall
-// Пользователь столкнулся с шаровой молнией
-
 class LevelParser {
   constructor(dictionaryOfChars = {}) {
     // dictionaryOfObjects - словарь движущихся объектов игрового поля
@@ -314,32 +216,3 @@ class LevelParser {
     return new Level(this.createGrid(plan), this.createActors(plan));
   }
 }
-
-// Пример использования
-
-const plan = [
-  ' @ ',
-  'x!x'
-];
-
-const actorsDict = Object.create(null);
-actorsDict['@'] = Actor;
-
-const parser = new LevelParser(actorsDict);
-const level = parser.parse(plan);
-
-level.grid.forEach((line, y) => {
-  line.forEach((cell, x) => console.log(`(${x}:${y}) ${cell}`));
-});
-
-level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
-
-
-/* Результат выполнения кода:
-(0:0) undefined
-(1:0) undefined
-(2:0) undefined
-(0:1) wall
-(1:1) lava
-(2:1) wall
-(1:0) actor */
