@@ -216,3 +216,49 @@ class LevelParser {
     return new Level(this.createGrid(plan), this.createActors(plan));
   }
 }
+
+class Fireball extends Actor {
+  // прототип для движущихся опасностей на игровом поле. Он должен наследовать весь функционал движущегося объекта Actor.
+  constructor(pos = new Vector(0, 0), speed = new Vector(0, 0)) {
+     super(pos, new Vector(1, 1), speed);
+  }
+
+  get type() {
+    return 'fireball';
+  }
+
+  getNextPosition(time = 1) { 
+    return this.pos.plus(this.speed.times(time));
+  }
+
+  handleObstacle() {
+    // столкновение молнии с препятствием, смена направления на противоположное
+    this.speed = this.speed.times(-1);
+  }
+
+  act(time, level) {
+    const nextPos = this.getNextPosition(time);
+    if (level.obstacleAt(nextPos, this.size)) { // если встретиться с обьектом
+      this.handleObstacle(); // меняет направление 
+    } else {
+      this.pos = nextPos
+    }
+  }
+}
+
+// Пример использования
+const time = 5;
+const speed = new Vector(1, 0);
+const position = new Vector(5, 5);
+
+const ball = new Fireball(position, speed);
+
+const nextPosition = ball.getNextPosition(time);
+console.log(`Новая позиция: ${nextPosition.x}: ${nextPosition.y}`);
+
+ball.handleObstacle();
+console.log(`Текущая скорость: ${ball.speed.x}: ${ball.speed.y}`);
+
+// Результат работы кода:
+// Новая позиция: 10: 5
+// Текущая скорость: -1: 0
