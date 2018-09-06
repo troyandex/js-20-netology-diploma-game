@@ -246,19 +246,25 @@ class Fireball extends Actor {
   }
 }
 
-// Пример использования
-const time = 5;
-const speed = new Vector(1, 0);
-const position = new Vector(5, 5);
+class HorizontalFireball extends Fireball {
+  constructor(pos = new Vector(0, 0)) {
+    super(pos, new Vector(2, 0));
+  }
+}
 
-const ball = new Fireball(position, speed);
+class VerticalFireball extends Fireball {
+  constructor(pos = new Vector(0, 0)) {
+    super(pos, new Vector(0, 2));
+  }
+}
 
-const nextPosition = ball.getNextPosition(time);
-console.log(`Новая позиция: ${nextPosition.x}: ${nextPosition.y}`);
+class FireRain extends Fireball {
+  constructor(pos = new Vector(0, 0)) {
+    super(pos, new Vector(0, 3));
+    this.startPos = this.pos;
+  }
 
-ball.handleObstacle();
-console.log(`Текущая скорость: ${ball.speed.x}: ${ball.speed.y}`);
-
-// Результат работы кода:
-// Новая позиция: 10: 5
-// Текущая скорость: -1: 0
+  handleObstacle() {
+    this.pos = this.startPos;
+  }
+}
