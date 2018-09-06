@@ -343,4 +343,4 @@ const actorDict = {
 }
 const parser = new LevelParser(actorDict);
 runGame(schemas, parser, DOMDisplay)
-  .then(() => window.alert('Вы выиграли приз!'));
+  .then(() => window.alert('Вы выиграли приз!')); // заменил на алерт не консоль
