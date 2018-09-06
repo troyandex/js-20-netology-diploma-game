@@ -268,3 +268,36 @@ class FireRain extends Fireball {
     this.pos = this.startPos;
   }
 }
+
+class Coin extends Actor {
+  constructor(pos = new Vector(0, 0)) {
+    super(pos.plus(new Vector(0.2, 0.1)), new Vector(0.6, 0.6)); // pos, size
+    this.springSpeed = 8; // Скорость подпрыгивания
+    this.springDist = 0.07; // Радиус подпрыгивания
+    this.spring = Math.random() * (Math.PI * 2); // Фаза подпрыгивания - рандом
+    this.startPos = this.pos;
+  }
+
+  get type() {
+    return 'coin';
+  }
+
+  updateSpring(time = 1) {
+    // Обновляет фазу подпрыгивания. Это функция времени.
+    this.spring += this.springSpeed * time;
+  }
+  
+  getSpringVector() {
+    // Создает и возвращает вектор подпрыгивания (только Y)
+    return new Vector(0, Math.sin(this.spring) * this.springDist)
+  }
+
+  getNextPosition(time = 1) {
+    this.updateSpring(time);
+    return this.startPos.plus(this.getSpringVector());
+  }
+
+  act(time) {
+    this.pos = this.getNextPosition(time);
+  }
+}
