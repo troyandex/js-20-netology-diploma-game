@@ -10,17 +10,15 @@ class Vector {
     if (!(vector instanceof Vector)) {
       throw new Error(`В метод plus передан не вектор`);
     }
-    // по-моему newX и newY более подходящие названия
-    const addX = this.x + vector.x;
-    const addY = this.y + vector.y;
-    return new Vector(addX, addY); 
+    const newX = this.x + vector.x;
+    const newY = this.y + vector.y;
+    return new Vector(newX, newY); 
     //Создает и возвращает новый объект типа Vector, с новыми координатами
   }
   times (factor) {
-    // по-моему newX и newY более подходящие названия
-    const addX = this.x * factor;
-    const addY = this.y * factor;
-    return new Vector(addX, addY); 
+    const newX = this.x * factor;
+    const newY = this.y * factor;
+    return new Vector(newX, newY); 
     //Создает и возвращает новый объект типа Vector, с новыми координатами
   }
 }
@@ -80,16 +78,8 @@ class Level {
     this.player = this.actors.find(actor => actor.type === 'player');
     //player — движущийся объект, тип которого — свойство type — равно player. Игорок передаётся с остальными движущимися объектами.
     this.height = this.grid.length; // Высота уровня = количеству строк сетки
-    // тут можно написать короче с помощью тренарного оператора сравнения
-    // и краткой записи стрелочной функции
-    this.width = this.grid.reduce((rez, item) => {
+    this.width = this.grid.reduce((rez, item) => item.length > rez ? item.length : rez, 0);
       // Ширина уровня равна количеству ячеек сетки
-      if (rez > item.length) {
-        return rez;
-      } else {
-        return item.length;
-      }
-    }, 0);
     this.status = null; // состояние прохождения уровня
     this.finishDelay = 1; // таймаут после окончания игры, равен 1 после создания. Необходим, чтобы после выигрыша или проигрыша игра не завершалась мгновенно
   }
@@ -159,9 +149,8 @@ class Level {
     }
     if (['lava', 'fireball'].some((el) => el === touchedType)) { 
       //если коснулись lava или fireball
-      // лучше разбить на 2 строки, чтобы было видно,
-      // что функция ничего не возвращает
-      return this.status = 'lost'; // проиграли
+      this.status = 'lost'; // меняем статус - проиграли
+      return;  // функция ничего не возвращает
     } 
     if (touchedType === 'coin' && actor.type === 'coin') { 
       //если коснулись монеты
@@ -175,9 +164,9 @@ class Level {
 
 class LevelParser {
   constructor(dictionaryOfChars = {}) {
-    // dictionaryOfObjects - словарь движущихся объектов игрового поля
+    // dictionaryOfChars - словарь движущихся объектов игрового поля
     // тут можно вот так { ...dictionaryOfChars }
-    this.dictionaryOfChars = Object.assign({}, dictionaryOfChars); // копия
+    this.dictionaryOfChars = { ...dictionaryOfChars }; // копия
   }
 
   actorFromSymbol(char) {
@@ -347,7 +336,7 @@ const actorDict = {
   'o': Coin,
   '=': HorizontalFireball,
   '|': VerticalFireball
-} // точка с запятой
+};
 const parser = new LevelParser(actorDict);
 runGame(schemas, parser, DOMDisplay)
   .then(() => window.alert('Вы выиграли приз!')); // заменил на алерт не консоль
