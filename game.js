@@ -10,15 +10,15 @@ class Vector {
     if (!(vector instanceof Vector)) {
       throw new Error(`В метод plus передан не вектор`);
     }
-    const addX = this.x + vector.x;
-    const addY = this.y + vector.y;
-    return new Vector(addX, addY); 
+    const newX = this.x + vector.x;
+    const newY = this.y + vector.y;
+    return new Vector(newX, newY); 
     //Создает и возвращает новый объект типа Vector, с новыми координатами
   }
   times (factor) {
-    const addX = this.x * factor;
-    const addY = this.y * factor;
-    return new Vector(addX, addY); 
+    const newX = this.x * factor;
+    const newY = this.y * factor;
+    return new Vector(newX, newY); 
     //Создает и возвращает новый объект типа Vector, с новыми координатами
   }
 }
@@ -342,5 +342,9 @@ const actorDict = {
   '|': VerticalFireball
 }
 const parser = new LevelParser(actorDict);
-runGame(schemas, parser, DOMDisplay)
-  .then(() => window.alert('Вы выиграли приз!')); // заменил на алерт не консоль
+
+loadLevels()
+  .then((res) => {
+    runGame(JSON.parse(res), parser, DOMDisplay)
+      .then(() => alert('Вы выиграли!'))
+  });
