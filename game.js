@@ -10,12 +10,14 @@ class Vector {
     if (!(vector instanceof Vector)) {
       throw new Error(`В метод plus передан не вектор`);
     }
+    // по-моему newX и newY более подходящие названия
     const addX = this.x + vector.x;
     const addY = this.y + vector.y;
     return new Vector(addX, addY); 
     //Создает и возвращает новый объект типа Vector, с новыми координатами
   }
   times (factor) {
+    // по-моему newX и newY более подходящие названия
     const addX = this.x * factor;
     const addY = this.y * factor;
     return new Vector(addX, addY); 
@@ -78,6 +80,8 @@ class Level {
     this.player = this.actors.find(actor => actor.type === 'player');
     //player — движущийся объект, тип которого — свойство type — равно player. Игорок передаётся с остальными движущимися объектами.
     this.height = this.grid.length; // Высота уровня = количеству строк сетки
+    // тут можно написать короче с помощью тренарного оператора сравнения
+    // и краткой записи стрелочной функции
     this.width = this.grid.reduce((rez, item) => {
       // Ширина уровня равна количеству ячеек сетки
       if (rez > item.length) {
@@ -155,6 +159,8 @@ class Level {
     }
     if (['lava', 'fireball'].some((el) => el === touchedType)) { 
       //если коснулись lava или fireball
+      // лучше разбить на 2 строки, чтобы было видно,
+      // что функция ничего не возвращает
       return this.status = 'lost'; // проиграли
     } 
     if (touchedType === 'coin' && actor.type === 'coin') { 
@@ -170,6 +176,7 @@ class Level {
 class LevelParser {
   constructor(dictionaryOfChars = {}) {
     // dictionaryOfObjects - словарь движущихся объектов игрового поля
+    // тут можно вот так { ...dictionaryOfChars }
     this.dictionaryOfChars = Object.assign({}, dictionaryOfChars); // копия
   }
 
@@ -340,7 +347,7 @@ const actorDict = {
   'o': Coin,
   '=': HorizontalFireball,
   '|': VerticalFireball
-}
+} // точка с запятой
 const parser = new LevelParser(actorDict);
 runGame(schemas, parser, DOMDisplay)
   .then(() => window.alert('Вы выиграли приз!')); // заменил на алерт не консоль
