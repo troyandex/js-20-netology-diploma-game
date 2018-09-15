@@ -308,28 +308,7 @@ class Player extends Actor {
   }
 }
 
-const schemas = [
-  [
-    '         ',
-    '         ',
-    '    =    ',
-    '       o ',
-    '     !xxx',
-    ' @       ',
-    'xxx!     ',
-    '         '
-  ],
-  [
-    '      v  ',
-    '         ', // без этой '    v    ' проще пройти для теста))
-    '  v      ',
-    '        o',
-    '        x',
-    '@   x    ',
-    'x        ',
-    '         '
-  ]
-];
+
 const actorDict = {
   '@': Player,
   'v': FireRain,
@@ -338,5 +317,9 @@ const actorDict = {
   '|': VerticalFireball
 };
 const parser = new LevelParser(actorDict);
-runGame(schemas, parser, DOMDisplay)
-  .then(() => window.alert('Вы выиграли приз!')); // заменил на алерт не консоль
+
+loadLevels()
+  .then(schemas => {
+    return runGame(JSON.parse(schemas), parser, DOMDisplay);
+  })
+  .then(() => alert('Вы выиграли!'));
